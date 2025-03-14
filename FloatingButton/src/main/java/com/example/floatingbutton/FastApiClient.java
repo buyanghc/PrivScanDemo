@@ -28,7 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class FastApiClient {
-    private static final String API_URL = "https://cpp4app-966231927754.australia-southeast1.run.app/process_image/";
+    private static final String API_URL = "https://shorten-966231927754.australia-southeast1.run.app/process_image/";
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     // 用于发送图像和 URL 到 FastAPI
@@ -43,6 +43,12 @@ public class FastApiClient {
                 });
             } catch (IOException e) {
                 e.printStackTrace();
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (callback != null) {
+                        // 你也可以再定义 onFailure 回调，这里简单地传空列表
+                        callback.onImagesProcessed(null);
+                    }
+                });
             }
         });
     }

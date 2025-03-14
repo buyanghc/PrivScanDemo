@@ -1,11 +1,17 @@
 package com.example.floatingbutton;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -15,6 +21,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.viewpager2.widget.ViewPager2;
@@ -24,6 +32,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 public class FloatingButtonView extends View {
@@ -38,6 +47,8 @@ public class FloatingButtonView extends View {
     private Paint paint;
     private String url;
     PopupWindow popupWindow;
+    private FrameLayout loadingOverlay;  // 动态创建的遮罩层
+    private ProgressBar loadingSpinner;  // 中央转圈
 
     // 构造方法
     public FloatingButtonView(Context context) {
@@ -183,8 +194,11 @@ public class FloatingButtonView extends View {
     }
 
     public void clickButton() throws IOException {
+        // 显示遮罩
+        showLoadingOverlay();
+
         Bitmap screenShot = ScreenshotHelper.captureScreenshotWithoutView((Activity) getContext(), this);
-        Toast.makeText(getContext(), "Floating Button Clicked!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Start Analyzing User Privacy Information Collected on the Current Page!", Toast.LENGTH_SHORT).show();
 
         // 2) 将截屏 Bitmap 压缩为 PNG，得到原始二进制
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -198,12 +212,19 @@ public class FloatingButtonView extends View {
         FastApiClient.sendImageToFastApi(screenshotBytes, url, new FastApiClient.FastApiCallback() {
             @Override
             public void onImagesProcessed(List<Bitmap> bitmaps) {
-                Log.d("FastApiClient", "11111111");
-                if (bitmaps != null && !bitmaps.isEmpty()) {
-                    Log.d("FastApiClient", "22222222222");
-                    showImagePopup(bitmaps);
-                    Log.d("FastApiClient", "333333333");
+                // 不管成功失败，先隐藏遮罩
+                hideLoadingOverlay();
+
+                if (bitmaps == null || bitmaps.isEmpty()) {
+                    // 没有图片时，弹出居中提示
+                    Toast toast = Toast.makeText(getContext(), "There is no collection of personal privacy data on the current page.", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                    return;
                 }
+
+                // 如果有图像
+                showImagePopup(bitmaps);
             }
         });
     }
@@ -219,6 +240,8 @@ public class FloatingButtonView extends View {
         // 2) 获取布局里的控件
         ViewPager2 viewPager = popupLayout.findViewById(R.id.viewPager);
         ImageView closeButton = popupLayout.findViewById(R.id.closeButton);
+        ImageView saveButton = popupLayout.findViewById(R.id.saveButton);
+        TextView pageIndicator = popupLayout.findViewById(R.id.pageIndicator);
 
         // 3) 给 ViewPager2 设置适配器
         ImageAdapter imageAdapter = new ImageAdapter(bitmaps);
@@ -227,6 +250,31 @@ public class FloatingButtonView extends View {
         // 4) 点击关闭按钮，关闭弹窗
         closeButton.setOnClickListener(v -> {
             popupWindow.dismiss();  // 关闭
+        });
+
+        saveButton.setOnClickListener(v -> {
+            int currentPosition = viewPager.getCurrentItem();  // 当前页面索引
+            Bitmap currentBitmap = bitmaps.get(currentPosition);
+            // 调用保存方法
+            saveImageToGallery(currentBitmap);
+        });
+
+        // 获取总图片数
+        int totalCount = bitmaps.size();
+        // 如果至少有1张图，让它先显示 "1/3" 之类的
+        if (totalCount > 0) {
+            pageIndicator.setText("1/" + totalCount);
+        }
+
+        // 注册页面切换的回调
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                // position 是0-based，所以要 +1
+                int currentIndex = position + 1;
+                pageIndicator.setText(currentIndex + "/" + totalCount);
+            }
         });
 
         // 5) 创建 PopupWindow 来包裹这个 popupLayout
@@ -242,18 +290,47 @@ public class FloatingButtonView extends View {
         popupWindow.showAtLocation(getRootView(), Gravity.CENTER, 0, 0);
     }
 
-    private void saveImage(Bitmap bitmap) {
-        // 保存图像的逻辑
-        // 你可以将其保存到本地文件或图库
+    private void saveImageToGallery(Bitmap bitmap) {
+        Context context = getContext();
+        if (!(context instanceof Activity)) return;
+
+        // 文件名
+        String filename = "privacy_capture_" + System.currentTimeMillis() + ".png";
+
+        OutputStream fos = null;
         try {
-            FileOutputStream outStream = new FileOutputStream(new File(getContext().getExternalFilesDir(null), "saved_image.png"));
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
-            outStream.flush();
-            outStream.close();
-            Toast.makeText(getContext(), "Image Saved", Toast.LENGTH_SHORT).show();
+            ContentResolver resolver = context.getContentResolver();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
+
+            // 保存到 Pictures 目录
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
+            }
+
+            Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+            if (imageUri == null) {
+                Toast.makeText(context, "Failed to create MediaStore entry", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            fos = resolver.openOutputStream(imageUri);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+
+            Toast.makeText(context, "Image saved to Gallery", Toast.LENGTH_SHORT).show();
+
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(getContext(), "Failed to save image", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Failed to save image", Toast.LENGTH_SHORT).show();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -272,5 +349,63 @@ public class FloatingButtonView extends View {
         is.close();
         return baos.toByteArray();
     }
+
+    /**
+     * 显示半透明黑幕 + 中间转圈
+     */
+    private void showLoadingOverlay() {
+        Context context = getContext();
+        if (!(context instanceof Activity)) return;
+
+        Activity activity = (Activity) context;
+        FrameLayout rootLayout = activity.findViewById(android.R.id.content);
+
+        // 先把旧的 overlay 移除，避免重复叠加
+        if (loadingOverlay != null && loadingOverlay.getParent() != null) {
+            rootLayout.removeView(loadingOverlay);
+        }
+
+        // 无论如何，重新 new 一个
+        loadingOverlay = new FrameLayout(context);
+        loadingOverlay.setLayoutParams(new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+        ));
+        loadingOverlay.setBackgroundColor(0x99000000);
+
+        // 让遮罩本身可点击 & 可抢占焦点
+        loadingOverlay.setClickable(true);
+        loadingOverlay.setFocusable(true);
+        loadingOverlay.setFocusableInTouchMode(true);
+
+        // 拦截触摸事件
+        loadingOverlay.setOnTouchListener((v, event) -> true);
+
+        // 转圈
+        loadingSpinner = new ProgressBar(context);
+        FrameLayout.LayoutParams spinnerParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        spinnerParams.gravity = Gravity.CENTER;
+        loadingOverlay.addView(loadingSpinner, spinnerParams);
+
+        // 再把新的 overlay 添加到根布局
+        rootLayout.addView(loadingOverlay);
+    }
+
+    /**
+     * 隐藏遮罩
+     */
+    private void hideLoadingOverlay() {
+        if (loadingOverlay != null) {
+            if (loadingOverlay.getParent() != null) {
+                FrameLayout rootLayout = ((Activity) getContext()).findViewById(android.R.id.content);
+                rootLayout.removeView(loadingOverlay);
+            }
+            loadingOverlay = null;
+        }
+    }
+
 
 }
