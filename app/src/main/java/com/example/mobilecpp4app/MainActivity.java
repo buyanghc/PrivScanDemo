@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         FloatingButtonView floatingButton = findViewById(R.id.fab);
         floatingButton.setPosition(900f, 1900f);
         floatingButton.setSize(100f);
-        floatingButton.setColor(Color.RED);
+        floatingButton.setImage(com.example.floatingbutton.R.drawable.button_bg);
         floatingButton.setPolicyUrl("https://buyanghc.github.io/fittrack-policy/index.html");
 
 

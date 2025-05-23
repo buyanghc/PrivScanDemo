@@ -49,6 +49,7 @@ public class FloatingButtonView extends View {
     PopupWindow popupWindow;
     private FrameLayout loadingOverlay;  // 动态创建的遮罩层
     private ProgressBar loadingSpinner;  // 中央转圈
+    private Bitmap buttonBitmap;
 
     // 构造方法
     public FloatingButtonView(Context context) {
@@ -83,7 +84,14 @@ public class FloatingButtonView extends View {
     @Override
     protected void onDraw(android.graphics.Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(x, y, radius, paint);
+
+        if (buttonBitmap != null) {
+            float left = x - buttonBitmap.getWidth() / 2f;
+            float top = y - buttonBitmap.getHeight() / 2f;
+            canvas.drawBitmap(buttonBitmap, left, top, paint);
+        } else {
+            canvas.drawCircle(x, y, radius, paint);
+        }
     }
 
     @Override
@@ -163,6 +171,13 @@ public class FloatingButtonView extends View {
     // 设置按钮的大小
     public void setSize(float radius) {
         this.radius = radius;
+
+        // 当大小变化时，也要重新缩放图片
+        if (buttonBitmap != null) {
+            int size = (int)(radius * 2);
+            buttonBitmap = Bitmap.createScaledBitmap(buttonBitmap, size, size, true);
+        }
+
         invalidate();
     }
 
@@ -407,5 +422,11 @@ public class FloatingButtonView extends View {
         }
     }
 
+    public void setImage(int resId) {
+        Bitmap original = BitmapFactory.decodeResource(getResources(), resId);
+        int size = (int)(radius * 2);
+        buttonBitmap = Bitmap.createScaledBitmap(original, size, size, true);
+        invalidate();
+    }
 
 }
