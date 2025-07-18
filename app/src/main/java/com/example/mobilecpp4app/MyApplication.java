@@ -13,7 +13,7 @@ public class MyApplication extends Application {
         ButtonInjector.init(this, (button, activity) -> {
             button.setPosition(900f, 1950f);
             button.setSize(100f);
-            button.setImage(com.example.SeePrivacyButton.R.drawable.button_bg);
+            button.setImage(com.example.PrivScan.R.drawable.button_bg);
             button.setColor(Color.parseColor("#8800FF"));
             button.setPolicyUrl("https://buyanghc.github.io/fittrack-policy/index.html");
         });

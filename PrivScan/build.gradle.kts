@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.SeePrivacyButton"
+    namespace = "com.example.PrivScan"
     compileSdk = 33
 
     defaultConfig {
