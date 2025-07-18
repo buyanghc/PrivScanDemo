@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- ViewPager2，用来左右滑动显示多张图片 -->
+    <!-- ViewPager2 for swiping between multiple images -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- 右上角的关闭按钮 android:src="@drawable/ic_close" -->
+    <!-- Close button at the top-right corner -->
     <ImageView
         android:id="@+id/closeButton"
         android:layout_width="48dp"
@@ -19,9 +19,9 @@
         android:src="@drawable/ic_close"
         android:padding="8dp"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="20dp"/>
+        android:layout_marginRight="20dp" />
 
-    <!-- 保存按钮（右下角） -->
+    <!-- Save button at the bottom-right corner -->
     <ImageView
         android:id="@+id/saveButton"
         android:layout_width="58dp"
@@ -30,8 +30,9 @@
         android:padding="8dp"
         android:layout_marginBottom="20dp"
         android:layout_marginRight="20dp"
-        android:src="@drawable/ic_save"/>
+        android:src="@drawable/ic_save" />
 
+    <!-- Policy button (bottom-right, left of save button) -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/policyButton"
         android:layout_width="wrap_content"
@@ -49,8 +50,9 @@
         android:paddingLeft="3dp"
         android:paddingRight="3dp"
         android:paddingTop="3dp"
-        android:paddingBottom="3dp"/>
+        android:paddingBottom="3dp" />
 
+    <!-- Page indicator text at the top center -->
     <TextView
         android:id="@+id/pageIndicator"
         android:layout_width="wrap_content"
@@ -59,6 +61,6 @@
         android:layout_marginTop="16dp"
         android:textSize="16sp"
         android:textColor="@android:color/white"
-        android:text=""/>
+        android:text="" />
 
 </FrameLayout>

@@ -6,27 +6,35 @@ import android.graphics.Canvas;
 import android.view.View;
 
 public class ScreenshotHelper {
+
+    /**
+     * Captures a screenshot of the current Activity excluding the given button view.
+     *
+     * @param activity The target Activity.
+     * @param button   The View to temporarily hide during capture (e.g., a floating button).
+     * @return A Bitmap representing the screenshot.
+     */
     public static Bitmap captureScreenshotWithoutView(Activity activity, View button) {
-        // 1) 暂时隐藏按钮，避免把它也截进来
+        // 1) Temporarily hide the button to avoid including it in the screenshot
         int originalVisibility = button.getVisibility();
         button.setVisibility(View.INVISIBLE);
 
-        // 2) 获取 Activity 的内容区域（不含系统状态栏/标题栏等）
+        // 2) Get the content area of the Activity (excluding system bars like status/title bar)
         View contentView = activity.findViewById(android.R.id.content);
 
-        // 3) 创建一张与 contentView 尺寸相同的 Bitmap
+        // 3) Create a Bitmap with the same size as the contentView
         int width = contentView.getWidth();
         int height = contentView.getHeight();
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-        // 4) 用 Canvas 让 contentView 自己“画”到这张 Bitmap 上
+        // 4) Use Canvas to make the contentView draw itself onto the Bitmap
         Canvas canvas = new Canvas(bitmap);
         contentView.draw(canvas);
 
-        // 5) 恢复按钮的可见性
+        // 5) Restore the button's original visibility
         button.setVisibility(originalVisibility);
 
-        // 6) 返回最终的截图（包含背景）
+        // 6) Return the final screenshot (including the background)
         return bitmap;
     }
 }

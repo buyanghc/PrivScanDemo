@@ -43,15 +43,15 @@ public class SeePrivacyButton extends View {
     private float lastY;
     private float initialX;
     private float initialY;
-    private static final int CLICK_THRESHOLD = 10;  // 设置点击阈值，单位像素
+    private static final int CLICK_THRESHOLD = 10;  // Threshold for click detection (in pixels)
     private Paint paint;
     private String url;
     PopupWindow popupWindow;
-    private FrameLayout loadingOverlay;  // 动态创建的遮罩层
-    private ProgressBar loadingSpinner;  // 中央转圈
+    private FrameLayout loadingOverlay;  // Dynamically created overlay
+    private ProgressBar loadingSpinner;  // Center spinner
     private Bitmap buttonBitmap;
 
-    // 构造方法
+    // Constructors
     public SeePrivacyButton(Context context) {
         super(context);
         init();
@@ -68,10 +68,10 @@ public class SeePrivacyButton extends View {
     }
 
     private void init() {
-        radius = 100f;  // 默认半径
+        radius = 100f;  // Default radius
         paint = new Paint();
-        paint.setColor(Color.BLUE);  // 默认颜色
-        paint.setAntiAlias(true);  // 平滑边缘
+        paint.setColor(Color.BLUE);  // Default color
+        paint.setAntiAlias(true);  // Smooth edges
 
         this.setFocusable(true);
         this.setClickable(true);
@@ -100,17 +100,17 @@ public class SeePrivacyButton extends View {
         float touchY = event.getY();
 
         switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:{
-                // 判断按下点是否在圆形范围内
+            case MotionEvent.ACTION_DOWN: {
+                // Check if the touch point is within the circular area
                 float dx = touchX - x;
                 float dy = touchY - y;
                 double distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance > radius) {
-                    // 如果按下位置不在按钮圆形里，就不消费这次事件
+                    // If the touch is outside the circle, ignore the event
                     return false;
                 }
 
-                // 记录按下的初始位置
+                // Record initial press position
                 initialX = event.getRawX();
                 initialY = event.getRawY();
                 lastX = initialX;
@@ -119,30 +119,28 @@ public class SeePrivacyButton extends View {
             }
 
             case MotionEvent.ACTION_MOVE:
-                // 计算按下后的移动距离
+                // Calculate movement distance
                 float dx = event.getRawX() - lastX;
                 float dy = event.getRawY() - lastY;
                 float distance = (float) Math.sqrt(dx * dx + dy * dy);
 
-                // 如果移动超过了阈值，则认为是拖动，不触发点击事件
+                // If moved beyond threshold, treat as drag, not click
                 if (distance > CLICK_THRESHOLD) {
                     x += dx;
                     y += dy;
                     lastX = event.getRawX();
                     lastY = event.getRawY();
-                    invalidate();  // 重新绘制按钮
+                    invalidate();  // Redraw the button
                 }
                 break;
 
             case MotionEvent.ACTION_UP:
-                // 计算松开时的移动距离，判断是否没有移动
+                // Determine if this was a click (not a drag)
                 float upDx = event.getRawX() - initialX;
                 float upDy = event.getRawY() - initialY;
                 float upDistance = (float) Math.sqrt(upDx * upDx + upDy * upDy);
 
-                // 如果移动距离小于阈值，触发点击事件
                 if (upDistance <= CLICK_THRESHOLD && isTouchInsideButton(event.getRawX(), event.getRawY())) {
-                    // 触发截图方法
                     try {
                         clickButton();
                     } catch (IOException e) {
@@ -154,25 +152,25 @@ public class SeePrivacyButton extends View {
         return true;
     }
 
-    // 判断触摸是否在按钮内部
+    // Check if the touch is inside the button area
     private boolean isTouchInsideButton(float touchX, float touchY) {
         float dx = touchX - x;
         float dy = touchY - y;
         return Math.sqrt(dx * dx + dy * dy) <= radius;
     }
 
-    // 设置按钮的位置
+    // Set the position of the button
     public void setPosition(float x, float y) {
         this.x = x;
         this.y = y;
         invalidate();
     }
 
-    // 设置按钮的大小
+    // Set the button size
     public void setSize(float radius) {
         this.radius = radius;
 
-        // 当大小变化时，也要重新缩放图片
+        // Rescale bitmap if needed
         if (buttonBitmap != null) {
             int size = (int)(radius * 2);
             buttonBitmap = Bitmap.createScaledBitmap(buttonBitmap, size, size, true);
@@ -181,102 +179,88 @@ public class SeePrivacyButton extends View {
         invalidate();
     }
 
-    // 设置按钮的颜色
+    // Set the button color
     public void setColor(int color) {
         paint.setColor(color);
         invalidate();
     }
 
     public void displayImage(Context context, Bitmap bitmap) {
-        // 创建一个新的 ImageView
         ImageView imageView = new ImageView(context);
         imageView.setImageBitmap(bitmap);
 
-        // 设置 ImageView 的布局参数
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
         );
         imageView.setLayoutParams(layoutParams);
 
-        // 获取当前 Activity 并将 ImageView 添加到其中
         if (context instanceof Activity) {
             Activity activity = (Activity) context;
-            // 假设你要添加到 Activity 的根布局中
             FrameLayout rootLayout = activity.findViewById(android.R.id.content);
             rootLayout.addView(imageView);
         }
     }
 
     public void clickButton() throws IOException {
-        // 显示遮罩
+        // Show loading overlay
         showLoadingOverlay();
 
         Bitmap screenShot = ScreenshotHelper.captureScreenshotWithoutView((Activity) getContext(), this);
-        Toast.makeText(getContext(), "Start Analyzing User Privacy Information Collected on the Current Page!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Start Privacy Scan!", Toast.LENGTH_SHORT).show();
 
-        // 2) 将截屏 Bitmap 压缩为 PNG，得到原始二进制
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         screenShot.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] screenshotBytes = baos.toByteArray();
 
-//        // 2) 从 raw 目录读取 "test.png" 的原始数据
+        // Test mode: load local raw image if needed
         byte[] testBytes = readRawResource(R.raw.test);
 
-        // 3) 调用 FastApiClient 发送
         FastApiClient.sendImageToFastApi(screenshotBytes, url, new FastApiClient.FastApiCallback() {
             @Override
             public void onImagesProcessed(List<Bitmap> bitmaps) {
-                // 不管成功失败，先隐藏遮罩
+                // Hide loading overlay regardless of success/failure
                 hideLoadingOverlay();
 
                 if (bitmaps == null || bitmaps.isEmpty()) {
-                    // 没有图片时，弹出居中提示
-                    Toast toast = Toast.makeText(getContext(), "There is no collection of personal privacy data on the current page.", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(getContext(), "No privacy-related data collection detected on this page.", Toast.LENGTH_SHORT);
                     toast.show();
                     return;
                 }
 
-                // 如果有图像
+                // Show results in popup
                 showImagePopup(bitmaps);
             }
         });
     }
 
-
     private void showImagePopup(List<Bitmap> bitmaps) {
-        // 1) 先用一个容器加载布局
+        // 1) Load layout into container
         FrameLayout popupLayout = new FrameLayout(getContext());
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        // 将 image_popup_layout.xml 填充到 popupLayout
         inflater.inflate(R.layout.image_popup_layout, popupLayout);
 
-        // 2) 获取布局里的控件
+        // 2) Get views from layout
         ViewPager2 viewPager = popupLayout.findViewById(R.id.viewPager);
         ImageView closeButton = popupLayout.findViewById(R.id.closeButton);
         ImageView saveButton = popupLayout.findViewById(R.id.saveButton);
         TextView pageIndicator = popupLayout.findViewById(R.id.pageIndicator);
         TextView policyButton = popupLayout.findViewById(R.id.policyButton);
 
-        // 3) 给 ViewPager2 设置适配器
+        // 3) Set adapter
         ImageAdapter imageAdapter = new ImageAdapter(bitmaps);
         viewPager.setAdapter(imageAdapter);
 
-        // 4) 点击关闭按钮，关闭弹窗
-        closeButton.setOnClickListener(v -> {
-            popupWindow.dismiss();  // 关闭
-        });
+        // 4) Set close button click
+        closeButton.setOnClickListener(v -> popupWindow.dismiss());
 
         saveButton.setOnClickListener(v -> {
-            int currentPosition = viewPager.getCurrentItem();  // 当前页面索引
+            int currentPosition = viewPager.getCurrentItem();
             Bitmap currentBitmap = bitmaps.get(currentPosition);
-            // 调用保存方法
             saveImageToGallery(currentBitmap);
         });
 
-        // 获取总图片数
         int totalCount = bitmaps.size();
-        // 如果至少有1张图，让它先显示 "1/3" 之类的
         if (totalCount > 0) {
             pageIndicator.setText("1/" + totalCount);
         }
@@ -291,27 +275,24 @@ public class SeePrivacyButton extends View {
             }
         });
 
-        // 注册页面切换的回调
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                // position 是0-based，所以要 +1
                 int currentIndex = position + 1;
                 pageIndicator.setText(currentIndex + "/" + totalCount);
             }
         });
 
-        // 5) 创建 PopupWindow 来包裹这个 popupLayout
+        // 5) Create popup window
         popupWindow = new PopupWindow(
                 popupLayout,
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                true  // 设置可获得焦点
+                true
         );
 
         popupWindow.setOutsideTouchable(true);
-        // 6) 显示在当前界面正中央
+        // 6) Show in center
         popupWindow.showAtLocation(getRootView(), Gravity.CENTER, 0, 0);
     }
 
@@ -319,7 +300,6 @@ public class SeePrivacyButton extends View {
         Context context = getContext();
         if (!(context instanceof Activity)) return;
 
-        // 文件名
         String filename = "privacy_capture_" + System.currentTimeMillis() + ".png";
 
         OutputStream fos = null;
@@ -329,7 +309,6 @@ public class SeePrivacyButton extends View {
             contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
             contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
 
-            // 保存到 Pictures 目录
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
             }
@@ -359,9 +338,8 @@ public class SeePrivacyButton extends View {
         }
     }
 
-
     /**
-     * 从 raw 目录读取文件的原始二进制
+     * Read raw resource file as byte array
      */
     private byte[] readRawResource(int resId) throws IOException {
         InputStream is = getContext().getResources().openRawResource(resId);
@@ -376,7 +354,7 @@ public class SeePrivacyButton extends View {
     }
 
     /**
-     * 显示半透明黑幕 + 中间转圈
+     * Show semi-transparent overlay + spinner
      */
     private void showLoadingOverlay() {
         Context context = getContext();
@@ -385,12 +363,11 @@ public class SeePrivacyButton extends View {
         Activity activity = (Activity) context;
         FrameLayout rootLayout = activity.findViewById(android.R.id.content);
 
-        // 先把旧的 overlay 移除，避免重复叠加
+        // Remove old overlay if exists
         if (loadingOverlay != null && loadingOverlay.getParent() != null) {
             rootLayout.removeView(loadingOverlay);
         }
 
-        // 无论如何，重新 new 一个
         loadingOverlay = new FrameLayout(context);
         loadingOverlay.setLayoutParams(new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -398,15 +375,11 @@ public class SeePrivacyButton extends View {
         ));
         loadingOverlay.setBackgroundColor(0x99000000);
 
-        // 让遮罩本身可点击 & 可抢占焦点
         loadingOverlay.setClickable(true);
         loadingOverlay.setFocusable(true);
         loadingOverlay.setFocusableInTouchMode(true);
-
-        // 拦截触摸事件
         loadingOverlay.setOnTouchListener((v, event) -> true);
 
-        // 转圈
         loadingSpinner = new ProgressBar(context);
         FrameLayout.LayoutParams spinnerParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -415,12 +388,11 @@ public class SeePrivacyButton extends View {
         spinnerParams.gravity = Gravity.CENTER;
         loadingOverlay.addView(loadingSpinner, spinnerParams);
 
-        // 再把新的 overlay 添加到根布局
         rootLayout.addView(loadingOverlay);
     }
 
     /**
-     * 隐藏遮罩
+     * Hide overlay
      */
     private void hideLoadingOverlay() {
         if (loadingOverlay != null) {
@@ -438,5 +410,4 @@ public class SeePrivacyButton extends View {
         buttonBitmap = Bitmap.createScaledBitmap(original, size, size, true);
         invalidate();
     }
-
 }

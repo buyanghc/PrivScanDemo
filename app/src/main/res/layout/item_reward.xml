@@ -5,7 +5,7 @@
     android:padding="12dp"
     android:background="?android:attr/selectableItemBackground">
 
-    <!-- 商品图片 -->
+    <!-- Item Image -->
     <ImageView
         android:id="@+id/item_image"
         android:layout_width="80dp"
@@ -15,7 +15,7 @@
         android:layout_marginEnd="20dp"
         android:scaleType="centerCrop"/>
 
-    <!-- 商品名称 & 所需积分 -->
+    <!-- Item Name & Required Points -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

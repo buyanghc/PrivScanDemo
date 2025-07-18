@@ -17,7 +17,7 @@
             android:layout_gravity="center"
             android:padding="32dp">
 
-            <!-- 用户头像 -->
+            <!-- User Avatar -->
             <ImageView
                 android:id="@+id/user_avatar"
                 android:layout_width="120dp"
@@ -26,7 +26,7 @@
                 android:contentDescription="User Avatar"
                 android:layout_marginBottom="24dp"/>
 
-            <!-- 用户昵称 -->
+            <!-- User Nickname -->
             <TextView
                 android:id="@+id/user_name"
                 android:layout_width="wrap_content"
@@ -36,7 +36,7 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="32dp"/>
 
-            <!-- 位置权限提示 -->
+            <!-- Location Permission Prompt -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
                     android:textSize="16sp"/>
             </LinearLayout>
 
-            <!-- 折线图标题 -->
+            <!-- Line Chart Title -->
             <TextView
                 android:id="@+id/step_chart_title"
                 android:layout_width="wrap_content"
@@ -70,7 +70,7 @@
                 android:layout_marginTop="32dp"
                 android:layout_marginBottom="16dp"/>
 
-            <!-- 个人步数折线图 (静态图片) -->
+            <!-- Personal Step Count Line Chart (Static Image) -->
             <ImageView
                 android:id="@+id/step_chart_image"
                 android:layout_width="match_parent"

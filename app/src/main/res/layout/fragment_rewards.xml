@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:padding="24dp">
 
-    <!-- 积分信息部分 -->
+    <!-- Points Information Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -13,7 +13,7 @@
         android:gravity="center_vertical"
         android:paddingBottom="16dp">
 
-        <!-- 积分图标 -->
+        <!-- Points Icon -->
         <ImageView
             android:id="@+id/points_icon"
             android:layout_width="32dp"
@@ -22,7 +22,7 @@
             android:contentDescription="Points Icon"
             android:layout_marginEnd="12dp"/>
 
-        <!-- 积分文本 -->
+        <!-- Points Text -->
         <TextView
             android:id="@+id/points_text"
             android:layout_width="wrap_content"
@@ -32,7 +32,7 @@
             android:textStyle="bold"/>
     </LinearLayout>
 
-    <!-- 积分进度条 -->
+    <!-- Points Progress Bar -->
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
@@ -42,7 +42,7 @@
         android:progress="50"
         android:paddingBottom="20dp"/>
 
-    <!-- 可兑换商品标题 -->
+    <!-- Redeemable Items Title -->
     <TextView
         android:id="@+id/redeem_title"
         android:layout_width="wrap_content"
@@ -52,7 +52,7 @@
         android:textStyle="bold"
         android:layout_marginBottom="12dp"/>
 
-    <!-- 商品列表 (RecyclerView) -->
+    <!-- Product List (RecyclerView) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_rewards"
         android:layout_width="match_parent"

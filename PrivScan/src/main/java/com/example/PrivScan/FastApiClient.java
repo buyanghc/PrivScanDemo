@@ -26,7 +26,7 @@ public class FastApiClient {
     private static final String API_URL = "https://shorten-966231927754.australia-southeast1.run.app/process_image/";
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    // 用于发送图像和 URL 到 FastAPI
+    // Used to send image and URL to FastAPI
     public static void sendImageToFastApi(byte[] fileBytes, String urlString, FastApiCallback callback) {
         executorService.submit(() -> {
             try {
@@ -40,7 +40,7 @@ public class FastApiClient {
                 e.printStackTrace();
                 new Handler(Looper.getMainLooper()).post(() -> {
                     if (callback != null) {
-                        // 你也可以再定义 onFailure 回调，这里简单地传空列表
+                        // You may define an onFailure callback; here we just return null
                         callback.onImagesProcessed(null);
                     }
                 });
@@ -48,68 +48,64 @@ public class FastApiClient {
         });
     }
 
-    // 上传图像和 URL 到 FastAPI
+    // Upload image and URL to FastAPI
     private static byte[] uploadImage(byte[] fileBytes, String urlString) throws IOException {
 
-        // 检查当前线程是否为主线程
+        // Check if the current thread is the main thread
         if (Looper.getMainLooper().isCurrentThread()) {
             Log.e("Network", "You are making network request on the main thread! This will cause ANR.");
         }
 
         // -----------------------------------------------------------
-        // 改成 multipart/form-data 上传
+        // Use multipart/form-data for uploading
         // -----------------------------------------------------------
         Log.d("FastApiClient", "Starting uploadImage method (multipart)...");
 
-        // 1) 先把要上传的 Bitmap 转成 PNG 的二进制数组
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-//        byte[] fileBytes = byteArrayOutputStream.toByteArray();
+        // 1) Convert Bitmap to PNG byte array (already provided as fileBytes)
 
-        // 2) 构造 boundary（分界线）
+        // 2) Construct boundary
         String boundary = "Boundary-" + System.currentTimeMillis();
 
-        // 3) 创建 HTTP 连接
+        // 3) Create HTTP connection
         URL url = new URL(API_URL);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
         connection.setDoInput(true);
-        // 设置 multipart/form-data
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-        connection.setConnectTimeout(60000);  // 连接超时
-        connection.setReadTimeout(60000);     // 读取超时
+        connection.setConnectTimeout(60000);  // Connection timeout
+        connection.setReadTimeout(60000);     // Read timeout
 
-        // 4) 写入 multipart 数据
+        // 4) Write multipart data
         OutputStream outputStream = connection.getOutputStream();
 
-        // -- (a) 写入 data字段 (纯文本)
+        // -- (a) Write the "data" field (plain text)
         String dataPart = "--" + boundary + "\r\n"
                 + "Content-Disposition: form-data; name=\"data\"\r\n\r\n"
                 + urlString + "\r\n";
         outputStream.write(dataPart.getBytes());
 
-        // -- (b) 写入 file字段 (文件)
+        // -- (b) Write the "file" field (file content)
         String filePartHeader = "--" + boundary + "\r\n"
                 + "Content-Disposition: form-data; name=\"file\"; filename=\"myimage.png\"\r\n"
                 + "Content-Type: image/png\r\n\r\n";
         outputStream.write(filePartHeader.getBytes());
 
-        // 写入 fileBytes
+        // Write fileBytes
         outputStream.write(fileBytes);
         outputStream.write("\r\n".getBytes());
 
-        // 结束分界
+        // End boundary
         String end = "--" + boundary + "--\r\n";
         outputStream.write(end.getBytes());
 
         outputStream.flush();
         outputStream.close();
 
-        // 5) 拿到响应码
+        // 5) Get response code
         int responseCode = connection.getResponseCode();
 
-        // 6) 读取响应体 （和以前一样：2xx用 getInputStream()，否则用 getErrorStream()）
+        // 6) Read response body (use getInputStream() for 2xx, else getErrorStream())
         InputStream inputStream;
         if (responseCode >= 200 && responseCode < 300) {
             inputStream = connection.getInputStream();
@@ -129,7 +125,7 @@ public class FastApiClient {
         return responseBytes;
     }
 
-    // 将输入流转换为字符串
+    // Convert input stream to string
     private static String convertStreamToString(InputStream inputStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder response = new StringBuilder();
@@ -140,14 +136,14 @@ public class FastApiClient {
         return response.toString();
     }
 
-    // 解压返回的 ZIP 文件，并提取其中的图像
+    // Unzip the returned ZIP file and extract images from it
     private static List<Bitmap> processZipFile(byte[] zipRawBytes) {
         List<Bitmap> bitmapList = new ArrayList<>();
         try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(zipRawBytes))) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 if (entry.getName().endsWith(".png")) {
-                    // 1) 先把 ZIP 内该文件的字节读到内存
+                    // 1) Read the file content inside ZIP into memory
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     byte[] buffer = new byte[4096];
                     int len;
@@ -156,7 +152,7 @@ public class FastApiClient {
                     }
                     byte[] imageData = baos.toByteArray();
 
-                    // 2) 第一步：只获取宽高（不真正解码像素）
+                    // 2) Step 1: Get only width/height without decoding pixels
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inJustDecodeBounds = true;
                     BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
@@ -164,18 +160,18 @@ public class FastApiClient {
                     int outWidth = options.outWidth;
                     int outHeight = options.outHeight;
 
-                    // 3) 计算合适的 inSampleSize 来缩小图像
-                    //    举例：限制长宽不超过 2000 像素 (可根据需求调整)
+                    // 3) Calculate suitable inSampleSize to downscale the image
+                    //    Example: limit dimensions to a max of 2000 pixels (can be adjusted)
                     int maxSide = 2000;
                     int sampleSize = 1;
                     while ((outWidth / sampleSize) > maxSide || (outHeight / sampleSize) > maxSide) {
-                        sampleSize *= 2;  // 每倍增 1 次，就把解码尺寸减半
+                        sampleSize *= 2;  // Each increment halves the decode size
                     }
 
-                    // 4) 第二步：真正解码（含缩放）
+                    // 4) Step 2: Actually decode (with scaling)
                     options.inJustDecodeBounds = false;
                     options.inSampleSize = sampleSize;
-                    // 如果想用 RGB_565 或其他方式节省内存，还可以：
+                    // Optional: save memory using RGB_565 or other config
                     // options.inPreferredConfig = Bitmap.Config.RGB_565;
                     Bitmap scaledBitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
 
@@ -189,7 +185,7 @@ public class FastApiClient {
         return bitmapList;
     }
 
-    // 回调接口，用于返回处理后的图像列表
+    // Callback interface to return the processed image list
     public interface FastApiCallback {
         void onImagesProcessed(List<Bitmap> bitmaps);
     }

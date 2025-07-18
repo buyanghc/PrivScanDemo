@@ -8,14 +8,14 @@
     android:background="@color/white"
     tools:context=".MainActivity">
 
-    <!-- 用于切换 Fragment 的容器 -->
+    <!-- Container for switching Fragments -->
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bottom_navigation"/>
 
-    <!-- 底部导航栏 -->
+    <!-- Bottom navigation bar -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
@@ -24,7 +24,3 @@
         app:menu="@menu/bottom_nav_menu"/>
 
 </RelativeLayout>
-
-
-
-

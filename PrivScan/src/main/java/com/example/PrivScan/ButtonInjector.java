@@ -12,8 +12,8 @@ import androidx.preference.PreferenceManager;
 import java.util.WeakHashMap;
 
 /**
- * 自动将 SeePrivacyButton 注入到每个 Activity 的辅助类（悬浮在最上层），
- * 并根据 SharedPreferences 中的开关状态自动控制按钮显示/隐藏。
+ * Helper class to automatically inject the SeePrivacyButton into each Activity (floating on the top layer),
+ * and control the button's visibility based on the toggle state stored in SharedPreferences.
  */
 public class ButtonInjector {
 
@@ -23,34 +23,19 @@ public class ButtonInjector {
 
     private static ButtonCustomizer customizer;
 
-    // 保存每个 Activity 中注入的按钮引用（避免重复创建）
+    // Save a reference to the injected button in each Activity (to avoid duplicate creation)
     private static final WeakHashMap<Activity, SeePrivacyButton> buttonMap = new WeakHashMap<>();
 
-    // 是否启用按钮（根据 SharedPreferences 中 seeprivacy_enabled 决定）
-    private static boolean isEnabled = true;
 
     public static void init(Application application, ButtonCustomizer buttonCustomizer) {
         customizer = buttonCustomizer;
-
-        // 1️⃣ 获取当前开关状态
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(application);
-        isEnabled = prefs.getBoolean("seeprivacy_enabled", true);
-
-        // 2️⃣ 监听 SharedPreferences 变化，自动控制按钮显示/隐藏
-        prefs.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
-            if ("seeprivacy_enabled".equals(key)) {
-                boolean enabled = sharedPreferences.getBoolean(key, true);
-                setVisible(enabled); // 实时更新所有按钮显示状态
-            }
-        });
-
-        // 3️⃣ 注册 Activity 生命周期监听，注入按钮
+        // 3️⃣ Register Activity lifecycle callbacks to inject the button
         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
                 FrameLayout decorView = (FrameLayout) activity.getWindow().getDecorView();
 
-                // 添加一个透明容器作为按钮的宿主
+                // Add a transparent container as the host for the button
                 FrameLayout overlay = new FrameLayout(activity);
                 overlay.setLayoutParams(new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
@@ -59,18 +44,16 @@ public class ButtonInjector {
                 overlay.setClickable(false);
                 decorView.addView(overlay);
 
-                // 创建按钮并添加到 overlay 中
+                // Create the button and add it to the overlay
                 SeePrivacyButton button = new SeePrivacyButton(activity);
                 overlay.addView(button);
                 buttonMap.put(activity, button);
 
-                // 应用开发者自定义样式
+                // Apply custom styles provided by the app developer
                 if (customizer != null) {
                     customizer.customize(button, activity);
                 }
 
-                // 应用当前开关状态，首次注入就生效
-                button.setVisibility(isEnabled ? View.VISIBLE : View.GONE);
             }
 
             @Override public void onActivityStarted(Activity activity) {}
@@ -79,23 +62,10 @@ public class ButtonInjector {
             @Override public void onActivityStopped(Activity activity) {}
             @Override public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {}
             @Override public void onActivityDestroyed(Activity activity) {
-                buttonMap.remove(activity); // 清理引用防止内存泄露
+                buttonMap.remove(activity); // Clean up references to prevent memory leaks
             }
         });
     }
 
-    // 显示或隐藏所有已注入按钮
-    public static void setVisible(boolean visible) {
-        isEnabled = visible; // 记录状态，供后续新 Activity 使用
-        for (SeePrivacyButton button : buttonMap.values()) {
-            if (button != null) {
-                button.setVisibility(visible ? View.VISIBLE : View.GONE);
-            }
-        }
-    }
 
-    // 外部调用获取当前按钮是否显示
-    public static boolean isVisible() {
-        return isEnabled;
-    }
 }

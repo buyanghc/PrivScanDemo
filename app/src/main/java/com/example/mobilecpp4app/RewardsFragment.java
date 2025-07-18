@@ -25,7 +25,6 @@ public class RewardsFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_rewards);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // 创建商品数据
         rewardList = new ArrayList<>();
         rewardList.add(new RewardItem("Sports Bottle", 500, R.drawable.ic_cup));
         rewardList.add(new RewardItem("Sports Towel", 300, R.drawable.ic_towel));

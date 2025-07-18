@@ -8,7 +8,7 @@
     android:padding="16dp"
     android:fitsSystemWindows="true">
 
-    <!-- 顶部栏：Post按钮 -->
+    <!-- Top bar: Post button -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -28,7 +28,7 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <!-- 用户头像 + 输入框 -->
+    <!-- User avatar + input field -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="200dp"
@@ -57,7 +57,7 @@
             android:maxLines="6" />
     </LinearLayout>
 
-    <!-- 功能 icon 栏 -->
+    <!-- Functional icon bar -->
     <LinearLayout
         android:id="@+id/icon_bar"
         android:layout_width="match_parent"
@@ -82,13 +82,6 @@
             android:contentDescription="Upload Picture"
             android:layout_margin="8dp" />
 
-        <ImageView
-            android:id="@+id/iv_location"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_location"
-            android:contentDescription="Add Location"
-            android:layout_margin="8dp" />
     </LinearLayout>
 
 </LinearLayout>
