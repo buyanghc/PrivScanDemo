@@ -1,0 +1,94 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/post_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="16dp"
+    android:fitsSystemWindows="true">
+
+    <!-- 顶部栏：Post按钮 -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#1DA1F2"
+            android:text="Post"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <!-- 用户头像 + 输入框 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/border_purple"
+        android:padding="15dp">
+
+        <ImageView
+            android:id="@+id/iv_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_avatar"
+            android:contentDescription="User Avatar" />
+
+        <EditText
+            android:id="@+id/et_post_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:hint="My fitness diary..."
+            android:textSize="16sp"
+            android:background="@android:color/transparent"
+            android:minLines="3"
+            android:maxLines="6" />
+    </LinearLayout>
+
+    <!-- 功能 icon 栏 -->
+    <LinearLayout
+        android:id="@+id/icon_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="15dp"
+        android:gravity="start">
+
+        <ImageView
+            android:id="@+id/iv_camera"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_margin="8dp"
+            android:contentDescription="Take Photo"
+            android:src="@drawable/ic_camera" />
+
+        <ImageView
+            android:id="@+id/iv_gallery"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_picture"
+            android:contentDescription="Upload Picture"
+            android:layout_margin="8dp" />
+
+        <ImageView
+            android:id="@+id/iv_location"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_location"
+            android:contentDescription="Add Location"
+            android:layout_margin="8dp" />
+    </LinearLayout>
+
+</LinearLayout>

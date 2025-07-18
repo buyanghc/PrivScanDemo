@@ -5,17 +5,31 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <Switch
-        android:id="@+id/switch_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enable"/>
 
     <Switch
         android:id="@+id/switch_notifications"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Enable Notifications"/>
+
+    <Switch
+        android:id="@+id/switch_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enable access to photo albums"/>
+
+    <Switch
+        android:id="@+id/switch_health_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enable access to health data" />
+
+    <Switch
+        android:id="@+id/switch_seeprivacy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enable SeePrivacy"
+        android:checked="true"/>
 
     <TextView
         android:layout_width="wrap_content"

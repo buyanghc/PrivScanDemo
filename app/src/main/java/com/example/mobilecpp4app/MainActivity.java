@@ -1,18 +1,9 @@
 package com.example.mobilecpp4app;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.Toast;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import android.view.MenuItem;
-
-import com.example.floatingbutton.FloatingButtonView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,13 +11,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        FloatingButtonView floatingButton = findViewById(R.id.fab);
-        floatingButton.setPosition(900f, 1900f);
-        floatingButton.setSize(100f);
-        floatingButton.setImage(com.example.floatingbutton.R.drawable.button_bg);
-        floatingButton.setPolicyUrl("https://buyanghc.github.io/fittrack-policy/index.html");
-
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -44,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new RewardsFragment();
             } else if (item.getItemId() == R.id.nav_settings) {
                 selectedFragment = new SettingsFragment();
+            } else if (item.getItemId() == R.id.nav_post) {
+                selectedFragment = new PostFragment();
             }
 
             if (selectedFragment != null) {

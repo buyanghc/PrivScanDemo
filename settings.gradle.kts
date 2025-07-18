@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "mobileCpp4App"
 include(":app")
-include(":FloatingButton")
+include(":PrivScan")
