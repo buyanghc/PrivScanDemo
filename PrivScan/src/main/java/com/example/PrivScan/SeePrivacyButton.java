@@ -27,7 +27,7 @@ import android.widget.Toast;
 
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.SeePrivacyButton.R;
+import com.example.PrivScan.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -3,6 +3,7 @@ package com.example.PrivScan;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.view.View;
 
 public class ScreenshotHelper {
@@ -29,6 +30,7 @@ public class ScreenshotHelper {
 
         // 4) Use Canvas to make the contentView draw itself onto the Bitmap
         Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.WHITE);
         contentView.draw(canvas);
 
         // 5) Restore the button's original visibility
