@@ -24,14 +24,14 @@ public class SettingsFragment extends Fragment {
 
         // Account group
         setItem(view, R.id.row_profile, "Profile", "", true);
-        setItem(view, R.id.row_basic_info, "Basic Info", "", true);
+//        setItem(view, R.id.row_basic_info, "Basic Info", "", true);
         setItem(view, R.id.row_account_security, "Account & Security", "", true);
         setItem(view, R.id.row_minor_mode, "Minor Mode", "Disabled", true);
         setItem(view, R.id.row_privacy, "Privacy Settings", "", true);
-        setItem(view, R.id.row_address, "Shipping Address", "", true);
+//        setItem(view, R.id.row_address, "Shipping Address", "", true);
 
         // General group
-        setItem(view, R.id.row_workout_setting, "Manage Permissions", "", true);
+//        setItem(view, R.id.row_workout_setting, "Manage Permissions", "", true);
         setItem(view, R.id.row_notifications, "Notifications", "", true);
         setItem(view, R.id.row_general_setting, "General Settings", "", true);
         setItem(view, R.id.row_network_diagnose, "Network Diagnosis", "", true);

@@ -23,7 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class FastApiClient {
-    private static final String API_URL = "https://shorten-966231927754.australia-southeast1.run.app/process_image/";
+    private static final String API_URL = "https://new-style-966231927754.australia-southeast1.run.app/process_image/";
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     // Used to send image and URL to FastAPI

@@ -29,11 +29,11 @@
             android:orientation="vertical">
 
             <include layout="@layout/item_setting_row" android:id="@+id/row_profile"/>
-            <include layout="@layout/item_setting_row" android:id="@+id/row_basic_info"/>
+<!--            <include layout="@layout/item_setting_row" android:id="@+id/row_basic_info"/>-->
             <include layout="@layout/item_setting_row" android:id="@+id/row_account_security"/>
             <include layout="@layout/item_setting_row" android:id="@+id/row_minor_mode"/>
             <include layout="@layout/item_setting_row" android:id="@+id/row_privacy"/>
-            <include layout="@layout/item_setting_row" android:id="@+id/row_address"/>
+<!--            <include layout="@layout/item_setting_row" android:id="@+id/row_address"/>-->
         </LinearLayout>
 
         <!-- Section: General -->
@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/item_setting_row" android:id="@+id/row_workout_setting"/>
+<!--            <include layout="@layout/item_setting_row" android:id="@+id/row_workout_setting"/>-->
             <include layout="@layout/item_setting_row" android:id="@+id/row_notifications"/>
             <include layout="@layout/item_setting_row" android:id="@+id/row_general_setting"/>
             <include layout="@layout/item_setting_row" android:id="@+id/row_network_diagnose"/>
